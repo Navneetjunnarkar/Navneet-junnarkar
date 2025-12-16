@@ -1,0 +1,8 @@
+{
+  "name": "Copy of Legal Sathi",
+  "description": "AI-powered legal assistance platform connecting citizens with legal resources, AI advice, and lawyers. Features secure authentication and document analysis.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
