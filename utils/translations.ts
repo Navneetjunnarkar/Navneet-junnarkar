@@ -39,7 +39,14 @@ export const translations = {
     officialPortal: "Official Portal Access",
     selectLang: "Language",
     riskAssessment: "AI Analysis Report",
-    processing: "Processing..."
+    processing: "Processing...",
+    searchDocs: "Search documents by name or date...",
+    docName: "Document Name",
+    uploadDate: "Upload Date",
+    status: "Status",
+    actions: "Actions",
+    view: "View",
+    noDocsFound: "No documents found."
   },
   hi: {
     loginTitle: "पोर्टल लॉगिन",
@@ -79,7 +86,14 @@ export const translations = {
     officialPortal: "आधिकारिक पोर्टल एक्सेस",
     selectLang: "भाषा",
     riskAssessment: "एआई विश्लेषण रिपोर्ट",
-    processing: "प्रक्रिया जारी है..."
+    processing: "प्रक्रिया जारी है...",
+    searchDocs: "नाम या तारीख से दस्तावेज़ खोजें...",
+    docName: "दस्तावेज़ का नाम",
+    uploadDate: "अपलोड तिथि",
+    status: "स्थिति",
+    actions: "कार्रवाई",
+    view: "देखें",
+    noDocsFound: "कोई दस्तावेज़ नहीं मिला।"
   },
   mr: {
     loginTitle: "पोर्टल लॉगिन",
@@ -119,6 +133,13 @@ export const translations = {
     officialPortal: "अधिकृत पोर्टल प्रवेश",
     selectLang: "भाषा",
     riskAssessment: "एआय विश्लेषण अहवाल",
-    processing: "प्रक्रिया चालू आहे..."
+    processing: "प्रक्रिया चालू आहे...",
+    searchDocs: "नाव किंवा तारखेनुसार कागदपत्रे शोधा...",
+    docName: "कागदपत्राचे नाव",
+    uploadDate: "अपलोड तारीख",
+    status: "स्थिती",
+    actions: "क्रिया",
+    view: "पहा",
+    noDocsFound: "कोणतीही कागदपत्रे आढळली नाहीत."
   }
 };

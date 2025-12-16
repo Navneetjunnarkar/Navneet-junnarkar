@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { UserRole, AuthState, User, Language } from '../types';
 import { translations } from '../utils/translations';
+import { MockBackend } from '../services/mockBackend';
 
 interface AuthProps {
   onLogin: (user: User, token: string) => void;
@@ -24,25 +25,21 @@ const Auth: React.FC<AuthProps> = ({ onLogin, language, setLanguage }) => {
     setLoading(true);
     setError('');
 
-    // Simulate API Call delay
-    setTimeout(() => {
-      if (email && password) {
-        // Mock Successful Login/Register
-        const mockUser: User = {
-          id: '12345',
-          name: isRegistering ? name : 'Arjun Kumar',
-          email: email,
-          role: role,
-          verified: true,
-          avatarUrl: 'https://picsum.photos/100/100'
-        };
-        const mockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // Mock JWT
-        onLogin(mockUser, mockToken);
+    try {
+      if (isRegistering) {
+        // Call Registration API
+        const response = await MockBackend.register(name, email, password, role);
+        onLogin(response.user, response.token);
       } else {
-        setError("Invalid credentials. Please try again.");
-        setLoading(false);
+        // Call Login API
+        const response = await MockBackend.login(email, password);
+        onLogin(response.user, response.token);
       }
-    }, 1500);
+    } catch (err: any) {
+      setError(err.message || "Authentication failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
