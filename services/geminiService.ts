@@ -1,9 +1,19 @@
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import { ChatMessage, Language } from "../types";
 
-// Initialize Gemini Client
-// NOTE: In a real app, strict backend proxying is recommended for keys.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+// Safe initialization of the API Key
+const getApiKey = () => {
+  // In some build environments, accessing process.env might throw if not polyfilled.
+  try {
+    return process.env.API_KEY;
+  } catch (e) {
+    return undefined;
+  }
+};
+
+const apiKey = getApiKey();
+// Initialize Gemini Client with a fallback to prevent immediate crash, but requests will fail if key is missing.
+const ai = new GoogleGenAI({ apiKey: apiKey || 'MISSING_KEY' });
 
 const SYSTEM_INSTRUCTION = `
 You are 'Legal Sathi', an expert Indian Legal Assistant AI.
@@ -21,6 +31,12 @@ Guidelines:
 `;
 
 export const getLegalAdvice = async (history: ChatMessage[], currentMessage: string, language: Language = 'en'): Promise<string> => {
+  // Explicit check for API Key before making the call
+  if (!apiKey) {
+    console.error("Configuration Error: API_KEY is missing in environment variables.");
+    return "System Error: The API Key is not configured. Please add 'API_KEY' to your Vercel Environment Variables.";
+  }
+
   try {
     const model = 'gemini-2.5-flash';
     
@@ -41,13 +57,26 @@ export const getLegalAdvice = async (history: ChatMessage[], currentMessage: str
     });
 
     return response.text || "I apologize, I could not process that legal query at this moment.";
-  } catch (error) {
+  } catch (error: any) {
     console.error("Gemini API Error:", error);
-    return "Error connecting to Legal Sathi AI. Please try again later.";
+    
+    // Provide more specific feedback based on error type
+    if (error.message?.includes('400') || error.toString().includes('400')) {
+        return "Connection Error: Invalid Request or API Key (400). Please check your API Key configuration.";
+    }
+    if (error.message?.includes('401') || error.message?.includes('403')) {
+        return "Authorization Error: Access denied. Please check if your API Key is valid and enabled.";
+    }
+
+    return "Error connecting to Legal Sathi AI. Please check the browser console for details.";
   }
 };
 
 export const analyzeDocument = async (base64Data: string, mimeType: string, language: Language = 'en'): Promise<string> => {
+  if (!apiKey) {
+    return "System Error: API Key is not configured in Vercel settings.";
+  }
+
   try {
     const model = 'gemini-2.5-flash'; // Capable of multimodal input
     
@@ -82,6 +111,6 @@ export const analyzeDocument = async (base64Data: string, mimeType: string, lang
     return response.text || "Could not analyze the document.";
   } catch (error) {
     console.error("Document Analysis Error:", error);
-    return "Failed to analyze document. Please ensure the image is clear.";
+    return "Failed to analyze document. Please ensure the image is clear and check your API Key.";
   }
 };
