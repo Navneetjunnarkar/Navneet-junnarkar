@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { User, UserRole, Language } from '../types';
 import LegalChat from './LegalChat';
 import DocumentUpload from './DocumentUpload';
+import VoiceAssistant from './VoiceAssistant';
+import TechInfo from './TechInfo';
 import { translations } from '../utils/translations';
 
 interface DashboardProps {
@@ -11,7 +13,7 @@ interface DashboardProps {
   setLanguage: (lang: Language) => void;
 }
 
-type ViewState = 'HOME' | 'CHAT' | 'DOCUMENTS' | 'LAWYERS' | 'PROFILE';
+type ViewState = 'HOME' | 'CHAT' | 'VOICE' | 'DOCUMENTS' | 'LAWYERS' | 'PROFILE' | 'TECH_INFO';
 
 const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, language, setLanguage }) => {
   const [currentView, setCurrentView] = useState<ViewState>('HOME');
@@ -20,9 +22,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, language, setLang
   const navItems = [
     { id: 'HOME', label: t.dashboard, icon: 'fa-table-columns' },
     { id: 'CHAT', label: t.aiChat, icon: 'fa-robot' },
+    { id: 'VOICE', label: t.voiceAssistant, icon: 'fa-microphone' },
     { id: 'DOCUMENTS', label: t.documents, icon: 'fa-folder-open' },
     { id: 'LAWYERS', label: t.findLawyers, icon: 'fa-user-tie' },
     { id: 'PROFILE', label: t.profile, icon: 'fa-id-card' },
+    { id: 'TECH_INFO', label: t.techInfo, icon: 'fa-microchip' },
   ];
 
   return (
@@ -40,7 +44,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, language, setLang
           <span className="text-xl font-bold tracking-tight text-yellow-500">Legal Sathi</span>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-hide">
           {navItems.map((item) => (
             <button
               key={item.id}
@@ -69,6 +73,8 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, language, setLang
                 <option value="en">English</option>
                 <option value="hi">हिंदी (Hindi)</option>
                 <option value="mr">मराठी (Marathi)</option>
+                <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+                <option value="raj">राजस्थानी (Rajasthani)</option>
               </select>
            </div>
 
@@ -113,6 +119,8 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, language, setLang
                     <option value="en">EN</option>
                     <option value="hi">HI</option>
                     <option value="mr">MR</option>
+                    <option value="pa">PA</option>
+                    <option value="raj">RAJ</option>
                 </select>
                 <button className="text-blue-900 ml-2" onClick={onLogout}>
                     <i className="fa-solid fa-right-from-bracket"></i>
@@ -130,16 +138,26 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, language, setLang
                 <p className="text-slate-500">Here is your legal assistance overview.</p>
               </header>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div onClick={() => setCurrentView('CHAT')} className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl p-6 text-white shadow-lg cursor-pointer transform hover:scale-105 transition">
                   <div className="flex justify-between items-start mb-4">
                     <div className="p-3 bg-white/20 rounded-lg">
                         <i className="fa-solid fa-robot text-2xl"></i>
                     </div>
-                    <span className="bg-yellow-500 text-blue-900 text-xs font-bold px-2 py-1 rounded">NEW</span>
                   </div>
                   <h3 className="text-xl font-bold mb-1">{t.askAi}</h3>
-                  <p className="text-blue-100 text-sm">{t.askAiDesc}</p>
+                  <p className="text-blue-100 text-xs">{t.askAiDesc}</p>
+                </div>
+
+                <div onClick={() => setCurrentView('VOICE')} className="bg-white rounded-xl p-6 shadow-md border border-slate-200 cursor-pointer hover:border-red-500 transition group">
+                   <div className="flex justify-between items-start mb-4">
+                    <div className="p-3 bg-red-100 text-red-700 rounded-lg group-hover:bg-red-600 group-hover:text-white transition">
+                        <i className="fa-solid fa-microphone text-2xl"></i>
+                    </div>
+                    <span className="bg-yellow-500 text-blue-900 text-[10px] font-bold px-2 py-1 rounded">NEW</span>
+                  </div>
+                  <h3 className="text-xl font-bold mb-1 text-slate-800">{t.voiceAssistant}</h3>
+                  <p className="text-slate-500 text-xs">{t.voiceDesc}</p>
                 </div>
 
                 <div onClick={() => setCurrentView('DOCUMENTS')} className="bg-white rounded-xl p-6 shadow-md border border-slate-200 cursor-pointer hover:border-blue-500 transition group">
@@ -149,7 +167,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, language, setLang
                     </div>
                   </div>
                   <h3 className="text-xl font-bold mb-1 text-slate-800">{t.analyzeDocs}</h3>
-                  <p className="text-slate-500 text-sm">{t.analyzeDocsDesc}</p>
+                  <p className="text-slate-500 text-xs">{t.analyzeDocsDesc}</p>
                 </div>
 
                 <div onClick={() => setCurrentView('LAWYERS')} className="bg-white rounded-xl p-6 shadow-md border border-slate-200 cursor-pointer hover:border-blue-500 transition group">
@@ -159,7 +177,18 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, language, setLang
                     </div>
                   </div>
                   <h3 className="text-xl font-bold mb-1 text-slate-800">{t.findLawyers}</h3>
-                  <p className="text-slate-500 text-sm">{t.findLawyerDesc}</p>
+                  <p className="text-slate-500 text-xs">{t.findLawyerDesc}</p>
+                </div>
+
+                {/* Tech Info Card */}
+                <div onClick={() => setCurrentView('TECH_INFO')} className="bg-white rounded-xl p-6 shadow-md border border-slate-200 cursor-pointer hover:border-slate-500 transition group">
+                   <div className="flex justify-between items-start mb-4">
+                    <div className="p-3 bg-slate-100 text-slate-700 rounded-lg group-hover:bg-slate-600 group-hover:text-white transition">
+                        <i className="fa-solid fa-microchip text-2xl"></i>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold mb-1 text-slate-800">{t.techInfo}</h3>
+                  <p className="text-slate-500 text-xs">View tech stack & roadmap</p>
                 </div>
               </div>
 
@@ -186,7 +215,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, language, setLang
 
           {currentView === 'CHAT' && <LegalChat language={language} />}
           
+          {currentView === 'VOICE' && <VoiceAssistant language={language} />}
+
           {currentView === 'DOCUMENTS' && <DocumentUpload language={language} />}
+          
+          {currentView === 'TECH_INFO' && <TechInfo />}
 
           {currentView === 'LAWYERS' && (
               <div className="space-y-6">

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { UserRole, AuthState, User, Language } from '../types';
 import { translations } from '../utils/translations';
-import { MockBackend } from '../services/mockBackend';
+import { AuthService } from '../services/authService';
 
 interface AuthProps {
   onLogin: (user: User, token: string) => void;
@@ -27,12 +27,12 @@ const Auth: React.FC<AuthProps> = ({ onLogin, language, setLanguage }) => {
 
     try {
       if (isRegistering) {
-        // Call Registration API
-        const response = await MockBackend.register(name, email, password, role);
+        // Call Firebase Registration
+        const response = await AuthService.register(name, email, password, role);
         onLogin(response.user, response.token);
       } else {
-        // Call Login API
-        const response = await MockBackend.login(email, password);
+        // Call Firebase Login
+        const response = await AuthService.login(email, password);
         onLogin(response.user, response.token);
       }
     } catch (err: any) {
@@ -54,6 +54,8 @@ const Auth: React.FC<AuthProps> = ({ onLogin, language, setLanguage }) => {
           <option value="en">English</option>
           <option value="hi">हिंदी (Hindi)</option>
           <option value="mr">मराठी (Marathi)</option>
+          <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+          <option value="raj">राजस्थानी (Rajasthani)</option>
         </select>
       </div>
 
@@ -110,7 +112,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, language, setLanguage }) => {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition"
+                    className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition"
                     placeholder="e.g. Arjun Kumar"
                     required
                   />
@@ -123,7 +125,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, language, setLanguage }) => {
                   type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition"
                   placeholder={t.emailPlaceholder}
                   required
                 />
@@ -135,7 +137,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, language, setLanguage }) => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition"
                   placeholder="••••••••"
                   required
                 />

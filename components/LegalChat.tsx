@@ -131,7 +131,7 @@ const LegalChat: React.FC<LegalChatProps> = ({ language }) => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder={t.chatPlaceholder}
-            className="flex-1 px-4 py-3 border border-slate-300 rounded-full focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition"
+            className="flex-1 px-4 py-3 bg-white border border-slate-300 rounded-full focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition"
           />
           <button
             onClick={handleSend}

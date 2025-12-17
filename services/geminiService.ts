@@ -2,7 +2,7 @@ import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import { ChatMessage, Language } from "../types";
 
 // Safe initialization of the API Key
-const getApiKey = () => {
+export const getApiKey = () => {
   // In some build environments, accessing process.env might throw if not polyfilled.
   try {
     return process.env.API_KEY;
@@ -15,7 +15,7 @@ const apiKey = getApiKey();
 // Initialize Gemini Client with a fallback to prevent immediate crash, but requests will fail if key is missing.
 const ai = new GoogleGenAI({ apiKey: apiKey || 'MISSING_KEY' });
 
-const SYSTEM_INSTRUCTION = `
+export const SYSTEM_INSTRUCTION = `
 You are 'Legal Sathi', an expert Indian Legal Assistant AI.
 Your goal is to simplify legal concepts for Indian citizens.
 
@@ -24,6 +24,7 @@ Guidelines:
 2. **IMPORTANT: Reference Previous Similar Cases.** Whenever you explain a legal concept or provide advice, you MUST cite relevant landmark judgments or similar past cases from the Supreme Court of India or High Courts to support your explanation.
    - Format the case citation clearly (e.g., *State of Maharashtra vs. X, 2015*).
    - Briefly explain why that case is relevant to the user's query.
+   - **SPECIFIC INSTRUCTION:** If the user asks about **Theft** or **Murder**, you MUST provide references to specific landmark cases regarding IPC Section 378/300 or BNS Section 303/101 respectively.
 3. Be polite, professional, and trustworthy.
 4. If a query implies a serious crime or emergency, advise the user to contact the police or a lawyer immediately.
 5. Summarize complex legal documents in simple Hindi or English as requested.
@@ -43,6 +44,8 @@ export const getLegalAdvice = async (history: ChatMessage[], currentMessage: str
     let langInstruction = "Respond in English.";
     if (language === 'hi') langInstruction = "Respond in Hindi (Devanagari script). Use simple legal Hindi.";
     else if (language === 'mr') langInstruction = "Respond in Marathi (Devanagari script). Use formal yet accessible Marathi.";
+    else if (language === 'pa') langInstruction = "Respond in Punjabi (Gurmukhi script). Use simple legal Punjabi.";
+    else if (language === 'raj') langInstruction = "Respond in Rajasthani (Devanagari script) or Marwari dialect where appropriate, otherwise use simple Hindi with Rajasthani context.";
 
     // Construct prompt history
     let fullPrompt = `${SYSTEM_INSTRUCTION}\n\nIMPORTANT: ${langInstruction}\n\n`;
@@ -83,10 +86,19 @@ export const analyzeDocument = async (base64Data: string, mimeType: string, lang
     let langInstruction = "English";
     if (language === 'hi') langInstruction = "Hindi (Devanagari script)";
     else if (language === 'mr') langInstruction = "Marathi (Devanagari script)";
+    else if (language === 'pa') langInstruction = "Punjabi (Gurmukhi script)";
+    else if (language === 'raj') langInstruction = "Rajasthani (Devanagari script)";
 
     const prompt = `
-      Please act as a legal document analyzer. 
-      1. Identify the type of document (e.g., Rental Agreement, Affidavit, Court Summons).
+      You are a strict legal document analyzer.
+      
+      STEP 1: CHECK VALIDITY
+      Look at the image provided. Is it a valid legal document (e.g., contract, court order, affidavit, deed, ID proof, official notice)?
+      - If the image is a person (selfie), a landscape, food, a meme, or clearly NOT a legal document:
+        Return EXACTLY the string: "NOT_LEGAL_DOC"
+        
+      STEP 2: ANALYZE (Only if Step 1 passes)
+      1. Identify the type of document.
       2. Summarize the key points in simple terms in ${langInstruction}.
       3. Highlight any potential risks or important dates in ${langInstruction}.
       4. Format the output clearly with Markdown headers.
@@ -108,8 +120,17 @@ export const analyzeDocument = async (base64Data: string, mimeType: string, lang
       }
     });
 
-    return response.text || "Could not analyze the document.";
-  } catch (error) {
+    const text = response.text?.trim() || "Could not analyze the document.";
+    
+    if (text.includes("NOT_LEGAL_DOC")) {
+        throw new Error("NOT_LEGAL_DOC");
+    }
+
+    return text;
+  } catch (error: any) {
+    if (error.message === "NOT_LEGAL_DOC") {
+        return "Please upload a valid legal document. The image provided does not appear to be an official contract, notice, or legal paper.";
+    }
     console.error("Document Analysis Error:", error);
     return "Failed to analyze document. Please ensure the image is clear and check your API Key.";
   }

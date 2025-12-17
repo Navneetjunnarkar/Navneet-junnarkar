@@ -4,7 +4,7 @@ export enum UserRole {
   ADMIN = 'ADMIN'
 }
 
-export type Language = 'en' | 'hi' | 'mr';
+export type Language = 'en' | 'hi' | 'mr' | 'pa' | 'raj';
 
 export interface User {
   id: string;
