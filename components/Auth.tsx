@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { UserRole, AuthState, User, Language } from '../types';
+import { UserRole, User, Language } from '../types';
 import { translations } from '../utils/translations';
 import { AuthService } from '../services/authService';
+import { isFirebaseConfigured } from '../services/firebaseConfig';
 
 interface AuthProps {
   onLogin: (user: User, token: string) => void;
@@ -27,11 +28,9 @@ const Auth: React.FC<AuthProps> = ({ onLogin, language, setLanguage }) => {
 
     try {
       if (isRegistering) {
-        // Call Firebase Registration
         const response = await AuthService.register(name, email, password, role);
         onLogin(response.user, response.token);
       } else {
-        // Call Firebase Login
         const response = await AuthService.login(email, password);
         onLogin(response.user, response.token);
       }
@@ -44,8 +43,12 @@ const Auth: React.FC<AuthProps> = ({ onLogin, language, setLanguage }) => {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-slate-100">
-      {/* Language Toggle (Floating) */}
-      <div className="absolute top-4 right-4 z-20">
+      <div className="absolute top-4 right-4 z-20 flex items-center gap-3">
+        {!isFirebaseConfigured && (
+          <span className="bg-amber-100 text-amber-700 text-[10px] px-2 py-1 rounded-full font-bold border border-amber-200">
+            <i className="fa-solid fa-flask mr-1"></i> DEMO MODE (LOCAL)
+          </span>
+        )}
         <select 
           value={language}
           onChange={(e) => setLanguage(e.target.value as Language)}
@@ -59,11 +62,9 @@ const Auth: React.FC<AuthProps> = ({ onLogin, language, setLanguage }) => {
         </select>
       </div>
 
-      {/* Left Side - Branding */}
       <div className="md:w-1/2 bg-blue-900 text-white flex flex-col justify-center items-center p-10 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
         <div className="z-10 text-center flex flex-col items-center">
-            {/* Ashok Stambh Logo */}
             <div className="mb-6 p-6 rounded-full bg-white/10 border-2 border-yellow-500 backdrop-blur-sm">
              <img 
                src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Emblem_of_India.svg/512px-Emblem_of_India.svg.png" 
@@ -73,21 +74,16 @@ const Auth: React.FC<AuthProps> = ({ onLogin, language, setLanguage }) => {
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-wide text-yellow-500">Legal Sathi</h1>
             <p className="text-xl md:text-2xl font-light text-blue-100">Satyamev Jayate</p>
-            <div className="mt-8 max-w-md mx-auto text-blue-200">
-                <p>AI-Powered Legal Assistance Platform.</p>
-                <p className="mt-2 text-sm">Secure. Reliable. Accessible.</p>
-            </div>
         </div>
       </div>
 
-      {/* Right Side - Form */}
       <div className="md:w-1/2 flex items-center justify-center p-6 md:p-12">
         <div className="w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden">
-            <div className="bg-yellow-50 p-4 border-b border-yellow-100 flex justify-center">
-                <span className="text-yellow-700 font-semibold text-sm uppercase tracking-wider">
-                    {t.officialPortal}
-                </span>
-            </div>
+          <div className="bg-yellow-50 p-4 border-b border-yellow-100 flex justify-center">
+            <span className="text-yellow-700 font-semibold text-sm uppercase tracking-wider">
+              {t.officialPortal}
+            </span>
+          </div>
           
           <div className="p-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -104,7 +100,6 @@ const Auth: React.FC<AuthProps> = ({ onLogin, language, setLanguage }) => {
             )}
 
             <form onSubmit={handleAuth} className="space-y-4">
-              
               {isRegistering && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">{t.fullName}</label>
@@ -112,7 +107,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, language, setLanguage }) => {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition"
+                    className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 outline-none transition"
                     placeholder="e.g. Arjun Kumar"
                     required
                   />
@@ -120,12 +115,12 @@ const Auth: React.FC<AuthProps> = ({ onLogin, language, setLanguage }) => {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email or Mobile</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                 <input
-                  type="text"
+                  type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 outline-none transition"
                   placeholder={t.emailPlaceholder}
                   required
                 />
@@ -137,7 +132,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, language, setLanguage }) => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 outline-none transition"
                   placeholder="••••••••"
                   required
                 />
@@ -150,9 +145,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, language, setLanguage }) => {
                     type="button"
                     onClick={() => setRole(UserRole.USER)}
                     className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition ${
-                      role === UserRole.USER 
-                        ? 'bg-blue-900 text-white shadow-md' 
-                        : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                      role === UserRole.USER ? 'bg-blue-900 text-white shadow-md' : 'bg-white text-gray-600 border border-gray-300'
                     }`}
                   >
                     <i className="fa-solid fa-user mr-2"></i> {t.citizen}
@@ -161,9 +154,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, language, setLanguage }) => {
                     type="button"
                     onClick={() => setRole(UserRole.LAWYER)}
                     className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition ${
-                      role === UserRole.LAWYER 
-                        ? 'bg-blue-900 text-white shadow-md' 
-                        : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                      role === UserRole.LAWYER ? 'bg-blue-900 text-white shadow-md' : 'bg-white text-gray-600 border border-gray-300'
                     }`}
                   >
                     <i className="fa-solid fa-gavel mr-2"></i> {t.lawyer}
@@ -174,12 +165,10 @@ const Auth: React.FC<AuthProps> = ({ onLogin, language, setLanguage }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex justify-center items-center"
+                className="w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 rounded-lg shadow-lg transition-all flex justify-center items-center"
               >
                 {loading ? (
-                  <>
-                    <i className="fa-solid fa-circle-notch fa-spin mr-2"></i> {t.processing}
-                  </>
+                  <><i className="fa-solid fa-circle-notch fa-spin mr-2"></i> {t.processing}</>
                 ) : (
                   isRegistering ? t.registerBtn : t.loginBtn
                 )}
@@ -197,12 +186,6 @@ const Auth: React.FC<AuthProps> = ({ onLogin, language, setLanguage }) => {
                 </button>
               </p>
             </div>
-            
-            {!isRegistering && (
-                <div className="mt-4 text-center">
-                    <button className="text-xs text-gray-400 hover:text-blue-900 transition">Forgot Password?</button>
-                </div>
-            )}
           </div>
         </div>
       </div>
